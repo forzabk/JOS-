@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jose Vascencelos | Cripto para iniciantes na Binance e OKX (spot)</title>
+<meta name="description" content="Aprenda cripto do zero em português simples. Canal no Telegram sobre operações spot na Binance e na OKX, sem alavancagem e sem promessa de lucro.">
+<meta property="og:title" content="Jose Vascencelos | Cripto para iniciantes">
+<meta property="og:description" content="Canal no Telegram para aprender cripto do zero: operações spot na Binance e na OKX, sem alavancagem.">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<style>:root{color-scheme:dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: uma tela só. Hero em painel com piso de grade neon + duas placas (Binance, OKX); três cartões curtos; aviso de risco. Visual escuro único, de propósito (neon). */
+:root {
+  color-scheme: dark;
+  --bg: #070812;
+  --panel: #0e1022;
+  --ink: #e8ecff;
+  --muted: #9aa3c7;
+  --line: #262a52;
+  --cyan: #19e6ff;
+  --pink: #ff3dd8;
+  --violet: #8a5cff;
+  --cyan-glow: rgba(25, 230, 255, 0.45);
+  --pink-glow: rgba(255, 61, 216, 0.4);
+  --warn-bg: #241a05;
+  --warn-ink: #f6dc94;
+  --warn-line: #6b5415;
+  --font-display: "Unbounded", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 500px at 85% -10%, rgba(138, 92, 255, 0.22), transparent 60%),
+    radial-gradient(700px 420px at -10% 20%, rgba(25, 230, 255, 0.10), transparent 60%);
+  background-repeat: no-repeat;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 88px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.12; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; border-radius: 4px; }
+
+.neon-c { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow), 0 0 32px rgba(25, 230, 255, 0.25); }
+.neon-p { color: var(--pink); text-shadow: 0 0 10px var(--pink-glow), 0 0 32px rgba(255, 61, 216, 0.22); }
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 20px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.bar .link { font-size: 14.5px; color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+.bar .link:hover { color: var(--ink); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--cyan); color: #04121a;
+  font-family: var(--font-body); font-weight: 700; font-size: 17px;
+  padding: 16px 26px; border-radius: 12px; text-decoration: none;
+  box-shadow: 0 0 0 1px var(--cyan), 0 0 22px var(--cyan-glow);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.btn:hover { box-shadow: 0 0 0 1px var(--cyan), 0 0 38px rgba(25, 230, 255, 0.75); transform: translateY(-1px); }
+.btn svg { width: 22px; height: 22px; flex: none; }
+
+.hero {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 22px;
+  background: linear-gradient(180deg, rgba(14, 16, 34, 0.55), rgba(7, 8, 18, 0.9));
+  padding: 56px 44px;
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); gap: 40px; align-items: center;
+}
+.floor {
+  position: absolute; left: -15%; right: -15%; bottom: 0; height: 58%;
+  background-image:
+    linear-gradient(rgba(138, 92, 255, 0.38) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 92, 255, 0.38) 1px, transparent 1px);
+  background-size: 52px 52px;
+  transform: perspective(380px) rotateX(64deg); transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 8%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 8%, transparent 92%);
+  pointer-events: none;
+}
+.hero > * { position: relative; }
+.hero > .floor { position: absolute; }
+.eyebrow { font-family: var(--font-mono); font-size: 13px; color: var(--cyan); letter-spacing: 0.02em; margin-bottom: 18px; }
+.hero h1 { font-size: clamp(30px, 5.4vw, 54px); font-weight: 800; }
+.hero .lead { margin-top: 22px; font-size: 18px; color: var(--muted); max-width: 52ch; }
+.hero .cta-row { margin-top: 30px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 20px; }
+.hero .note { font-size: 14px; color: var(--muted); max-width: 30ch; }
+
+.plates { display: grid; gap: 18px; }
+.plate {
+  border: 1px solid; border-radius: 16px; padding: 22px 24px;
+  background: rgba(7, 8, 18, 0.7);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.plate .name { font-family: var(--font-display); font-weight: 800; font-size: clamp(26px, 4vw, 34px); letter-spacing: 0.02em; }
+.plate .meta { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.plate.b { border-color: var(--cyan); box-shadow: 0 0 0 1px rgba(25, 230, 255, 0.18), 0 0 30px rgba(25, 230, 255, 0.28), inset 0 0 26px rgba(25, 230, 255, 0.07); animation: breathe 5s ease-in-out infinite; }
+.plate.o { border-color: var(--pink); box-shadow: 0 0 0 1px rgba(255, 61, 216, 0.18), 0 0 30px rgba(255, 61, 216, 0.26), inset 0 0 26px rgba(255, 61, 216, 0.07); animation: breathe 5s ease-in-out 1.6s infinite; }
+@keyframes breathe { 50% { filter: brightness(1.22); } }
+
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-block: 28px; }
+.item { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 10px; transition: border-color .2s ease, box-shadow .2s ease; }
+.item:hover { border-color: var(--violet); box-shadow: 0 0 24px rgba(138, 92, 255, 0.22); }
+.item h3 { font-size: 18px; font-weight: 700; }
+.item p { color: var(--muted); font-size: 16px; }
+.tag { font-family: var(--font-mono); font-size: 12.5px; }
+.tag.c { color: var(--cyan); } .tag.p { color: var(--pink); } .tag.v { color: #b79bff; }
+
+.risk { background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-line); border-radius: 14px; padding: 22px 24px; }
+.risk h2 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.risk p { font-size: 15.5px; max-width: 80ch; }
+
+footer { padding-block: 28px 40px; font-size: 14px; color: var(--muted); }
+
+.sticky { display: none; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding: 36px 22px; gap: 32px; }
+  .grid3 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .sticky {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    background: var(--bg); border-top: 1px solid var(--line);
+    padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  }
+  .sticky .btn { width: 100%; }
+  .hero .cta-row .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plate.b, .plate.o { animation: none; }
+  .btn, .item { transition: none; }
+  .btn:hover { transform: none; }
+}
+</style>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="brand neon-c" data-name>Jose Vascencelos</div>
+    <a class="link" href="#risco">Aviso de risco</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="floor" aria-hidden="true"></div>
+      <div>
+        <p class="eyebrow">Canal no Telegram · Cripto para iniciantes</p>
+        <h1>Cripto do zero. Só operações <span class="neon-c">spot</span>, nas maiores exchanges do mundo.</h1>
+        <p class="lead">Trabalhamos somente com operações spot, nas exchanges globais Binance e OKX. No canal do Telegram você aprende tudo em português simples, sem alavancagem e sem promessa de lucro.</p>
+        <div class="cta-row">
+          <a class="btn" data-cta href="https://t.me/vascencelos_jose" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 3.6 2.6 11c-1.3.5-1.3 1.3-.2 1.6l4.9 1.5 1.9 5.8c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.4-2.3 4.9 3.6c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.2-.4-1.8-1.1-1.5ZM8.4 13.3l9.7-6.1c.5-.3.9-.1.5.2l-8.3 7.5-.3 3.4-1.6-5Z"/></svg>
+            Entrar no canal do Telegram
+          </a>
+          <p class="note">É só tocar no botão. Você sai quando quiser.</p>
+        </div>
+      </div>
+
+      <div class="plates" aria-label="Exchanges abordadas no canal">
+        <div class="plate b"><span class="name neon-c">BINANCE</span><span class="meta">exchange global · mercado spot</span></div>
+        <div class="plate o"><span class="name neon-p">OKX</span><span class="meta">exchange global · mercado spot</span></div>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="item">
+        <span class="tag c">Spot</span>
+        <h3>Compra direta</h3>
+        <p>Você paga e a moeda é sua, como comprar um produto na loja. Sem dinheiro emprestado e sem alavancagem.</p>
+      </div>
+      <div class="item">
+        <span class="tag p">Exchanges</span>
+        <h3>Binance e OKX</h3>
+        <p>Duas das maiores corretoras de cripto do mundo. Explicamos como usá-las, passo a passo.</p>
+      </div>
+      <div class="item">
+        <span class="tag v">Risco</span>
+        <h3>Sem promessa de lucro</h3>
+        <p>Cripto é arriscado e você pode perder tudo. O conteúdo do canal é educativo.</p>
+      </div>
+    </div>
+
+    <div class="risk" id="risco" role="note">
+      <h2>Aviso de risco</h2>
+      <p>Criptoativos têm risco muito alto e você pode perder todo o dinheiro investido. O conteúdo desta página e do canal é educativo e não constitui recomendação, consultoria ou promessa de resultado. Resultados passados não garantem resultados futuros. Nunca invista dinheiro de que você precisa para suas contas do dia a dia.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Esta página convida para um canal do Telegram. Binance, OKX e Telegram são marcas de suas respectivas empresas e esta página não tem vínculo com elas.</p>
+  </footer>
+</div>
+
+<div class="sticky">
+  <a class="btn" data-cta href="https://t.me/vascencelos_jose" rel="noopener">Entrar no canal do Telegram</a>
+</div>
+
+<script>
+/* ===== EDITE AQUI =====
+   CHANNEL_URL: link do canal (pode ser um link de convite do Telegram para medir entradas).
+   PIXEL_ID: número do Pixel da Meta. Deixe vazio ("") enquanto não tiver. */
+var CHANNEL_URL = "https://t.me/vascencelos_jose";
+var CHANNEL_NAME = "Jose Vascencelos";
+var PIXEL_ID = "";
+/* ====================== */
+document.querySelectorAll("[data-cta]").forEach(function (a) { a.href = CHANNEL_URL; });
+document.querySelectorAll("[data-name]").forEach(function (el) { el.textContent = CHANNEL_NAME; });
+
+if (PIXEL_ID) {
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
+  document.querySelectorAll("[data-cta]").forEach(function (a) {
+    a.addEventListener("click", function () { fbq('track', 'Lead'); });
+  });
+}
+</script>
+
+</body>
+</html>
