@@ -1,0 +1,30 @@
+
+media: media
+
+content:
+  - name: homepage
+    label: Site Yönetimi
+    type: file
+    path: site.json
+    format: json
+    fields:
+      - name: channel_name
+        label: Kanal Adı
+        type: string
+      - name: hero_first
+        label: Başlık İlk Kısım
+        type: string
+      - name: hero_color
+        label: Renkli Kelime
+        type: string
+      - name: hero_last
+        label: Başlık Son Kısım
+        type: string
+      - name: description
+        label: Açıklama
+        type: text
+      - name: telegram_url
+        label: Telegram Linki
+        type: string
+    operations:
+      delete: false
