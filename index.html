@@ -245,5 +245,45 @@ if (PIXEL_ID) {
 }
 </script>
 
-</body>
+</body
+<script>
+fetch("/site.json")
+  .then(r => {
+    if (!r.ok) throw new Error("Settings unavailable");
+    return r.json();
+  })
+  .then(data => {
+    const name = document.querySelector("[data-name]");
+    if (name && data.channel_name) {
+      name.textContent = data.channel_name;
+    }
+
+    const title = document.querySelector(".hero h1");
+    if (title) {
+      const accent = document.createElement("span");
+      accent.className = "neon-c";
+      accent.textContent = data.hero_color || "";
+
+      title.replaceChildren(
+        document.createTextNode(data.hero_first || ""),
+        accent,
+        document.createTextNode(data.hero_last || "")
+      );
+    }
+
+    const lead = document.querySelector(".hero .lead");
+    if (lead && data.description) {
+      lead.textContent = data.description;
+    }
+
+    const url = (data.telegram_url || "").trim();
+    if (/^https:\/\/(t\.me|telegram\.me)\/\S+$/i.test(url)) {
+      document.querySelectorAll("[data-cta]").forEach(a => {
+        a.href = url;
+      });
+    }
+  })
+  .catch(console.error);
+</script>
+>
 </html>
