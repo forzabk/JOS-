@@ -224,6 +224,18 @@ footer { padding-block: 28px 40px; font-size: 14px; color: var(--muted); }
   <a class="btn" data-cta href="https://t.me/vascencelos_jose" rel="noopener">Entrar no canal do Telegram</a>
 </div>
 
+<dialog id="join-permission" aria-labelledby="join-title" style="max-width:520px;width:calc(100% - 32px);border:1px solid #485077;border-radius:18px;padding:26px;background:#10152a;color:#f4f5ff">
+  <h2 id="join-title" style="font-size:21px">Entrada no Telegram</h2>
+  <p style="margin:16px 0">Você permite vincular sua visita à entrada no canal e compartilhar essa confirmação com a Meta para medir os anúncios?</p>
+  <p style="font-size:14px;color:#c3c9df;margin-bottom:18px">Usaremos identificadores do anúncio e do navegador, IP e informações do dispositivo por até 7 dias para fazer a associação. Seu nome e sua identificação do Telegram não serão enviados à Meta. Você também pode entrar sem vincular sua entrada.</p>
+  <div style="display:grid;gap:12px">
+    <button id="join-allow" class="btn" type="button">Permitir e entrar</button>
+    <button id="join-without" class="btn" type="button">Entrar sem vincular</button>
+    <button id="join-cancel" type="button" style="padding:10px;background:transparent;color:inherit;border:0;cursor:pointer">Voltar</button>
+  </div>
+  <p id="join-progress" role="status" style="margin-top:14px;font-size:14px"></p>
+</dialog>
+
 <script>
 /* ===== EDITE AQUI =====
    CHANNEL_URL: link do canal (pode ser um link de convite do Telegram para medir entradas).
@@ -288,7 +300,54 @@ if (PIXEL_ID) {
   
 </script>
 
-
+<script>
+// Membership attribution is optional. Existing PageView/Lead remain separate.
+(() => {
+  const dialog = document.getElementById('join-permission');
+  const allow = document.getElementById('join-allow');
+  const without = document.getElementById('join-without');
+  const cancel = document.getElementById('join-cancel');
+  const progress = document.getElementById('join-progress');
+  let destination = '', busy = false;
+  document.querySelectorAll('[data-cta]').forEach(a => a.addEventListener('click', e => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || typeof dialog.showModal !== 'function') return;
+    e.preventDefault();
+    if (busy || dialog.open) return;
+    destination = a.href;
+    progress.textContent = '';
+    dialog.showModal();
+  }));
+  cancel.onclick = () => { if (!busy) dialog.close(); };
+  without.onclick = () => { if (!busy) window.location.assign(destination); };
+  dialog.addEventListener('cancel', e => { if (busy) e.preventDefault(); });
+  allow.onclick = async () => {
+    if (busy) return;
+    busy = true; allow.disabled = without.disabled = cancel.disabled = true;
+    progress.textContent = 'Preparando seu convite…';
+    try {
+      let visit;
+      try {
+        const saved = JSON.parse(sessionStorage.getItem('jose-join-visit') || 'null');
+        if (saved && saved.expires > Date.now()) visit = saved.id;
+      } catch {}
+      if (!/^[a-f0-9]{32}$/.test(visit || '')) visit = crypto.randomUUID().replaceAll('-', '');
+      try { sessionStorage.setItem('jose-join-visit', JSON.stringify({ id: visit, expires: Date.now() + 23 * 3600000 })); } catch {}
+      const result = await fetch('/api/join', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consent: true, visit, fbclid: new URL(location.href).searchParams.get('fbclid') || '' }),
+        signal: AbortSignal.timeout(15000)
+      });
+      const data = await result.json();
+      if (!result.ok || !/^https:\/\/t\.me\/[+A-Za-z0-9_-]+$/.test(data.url || '')) throw new Error('Unavailable');
+      window.location.assign(data.url);
+    } catch {
+      // If attribution is unavailable, the normal channel entry still works.
+      try { sessionStorage.removeItem('jose-join-visit'); } catch {}
+      progress.textContent = 'Não foi possível vincular a visita. Use “Entrar sem vincular” para continuar.';
+    } finally { busy = false; allow.disabled = without.disabled = cancel.disabled = false; }
+  };
+})();
+</script>
 <script>
 fetch("/site.json")
   .then(r => {
