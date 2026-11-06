@@ -128,33 +128,67 @@ export async function onRequestPost({ request, env }) {
   } catch { return response({ error: 'Tracking unavailable' }, 503); }
 }
 
-export async function recordRegistration(env, cfg, updateId, event, kind, subject, linkKey) {
-  if (!['request', 'join'].includes(kind) || !linkKey) return;
-  const enabled = await env.DB.prepare('SELECT enabled FROM jose_meta_settings WHERE id=1').first();
+export async function recordRegistration(
+  env, cfg, updateId, event, kind, subject, linkKey
+) {
+  if (kind !== 'request' || !linkKey) return;
+
+  const enabled = await env.DB.prepare(
+    'SELECT enabled FROM jose_meta_settings WHERE id=1'
+  ).first();
   if (!enabled?.enabled) return;
-  const visit = await env.DB.prepare('SELECT * FROM jose_meta_visits WHERE link_key=? AND channel_id=?')
-    .bind(linkKey, cfg.channel_id).first();
-  if (!visit || event.date < visit.created_at || event.date > visit.created_at + 7 * DAY) return;
-  if (visit.subject && visit.subject !== subject) return; // Shared link cannot credit a second account.
-  if (kind === 'request') {
-    if (event.date > visit.expires_at) return;
-    await env.DB.prepare('UPDATE jose_meta_visits SET subject=?,requested_at=? WHERE id=? AND (subject IS NULL OR subject=?)')
-      .bind(subject, event.date, visit.id, subject).run();
-    return;
-  }
-  // Require a matching request from the SAME account, through this exact invite.
-  // Missing/other invite metadata is deliberately left unattributed.
-  if (visit.subject !== subject || !visit.requested_at || visit.requested_at > event.date) return;
-  const old = await env.DB.prepare("SELECT update_id FROM jose_bot_events WHERE subject=? AND kind='join' AND update_id<>? LIMIT 1")
-    .bind(subject, updateId).first();
-  if (old) return; // Existing counted members/rejoins are not new registrations.
-  const key = await digest(env, 'registration:' + cfg.channel_id + ':' + subject);
+
+  const visit = await env.DB.prepare(
+    'SELECT * FROM jose_meta_visits WHERE link_key=? AND channel_id=?'
+  ).bind(linkKey, cfg.channel_id).first();
+
+  if (
+    !visit ||
+    event.date < visit.created_at ||
+    event.date > visit.expires_at ||
+    (visit.subject && visit.subject !== subject)
+  ) return;
+
+  // Daha önce katılmış kişiyi yeni kayıt olarak sayma.
+  const previousJoin = await env.DB.prepare(
+    "SELECT update_id FROM jose_bot_events WHERE subject=? AND kind='join' LIMIT 1"
+  ).bind(subject).first();
+  if (previousJoin) return;
+
+  const claimed = await env.DB.prepare(`
+    UPDATE jose_meta_visits
+    SET subject=?, requested_at=COALESCE(requested_at,?)
+    WHERE id=? AND (subject IS NULL OR subject=?)
+    RETURNING id
+  `).bind(subject, event.date, visit.id, subject).first();
+  if (!claimed) return;
+
+  // Eski sürümle aynı anahtar: daha önce sayılanları tekrar saymaz.
+  const key = await digest(
+    env, 'registration:' + cfg.channel_id + ':' + subject
+  );
   const eventId = 'tg_registration_' + key;
-  const payload = { event_name: 'CompleteRegistration', event_time: event.date, event_id: eventId,
-    action_source: 'chat', user_data: JSON.parse(visit.user_data), custom_data: { status: true } };
-  await env.DB.prepare(`INSERT OR IGNORE INTO jose_meta_outbox
-    (registration_key,event_id,event_time,payload,test_code) VALUES(?,?,?,?,?)`)
-    .bind(key, eventId, event.date, JSON.stringify(payload), String(env.META_TEST_EVENT_CODE || '')).run();
+
+  const payload = {
+    event_name: 'CompleteRegistration',
+    event_time: event.date,
+    event_id: eventId,
+    action_source: 'chat',
+    user_data: JSON.parse(visit.user_data),
+    custom_data: { status: true }
+  };
+
+  await env.DB.prepare(`
+    INSERT OR IGNORE INTO jose_meta_outbox
+    (registration_key,event_id,event_time,payload,test_code)
+    VALUES(?,?,?,?,?)
+  `).bind(
+    key,
+    eventId,
+    event.date,
+    JSON.stringify(payload),
+    String(env.META_TEST_EVENT_CODE || '')
+  ).run();
 }
 
 export async function flushMeta(env, maximum = 3, force = false) {
