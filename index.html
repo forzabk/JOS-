@@ -84,6 +84,8 @@ h1 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: c
     <div class="mono" data-initials aria-hidden="true">JV</div>
     <p class="kicker">Canal no Telegram</p>
     <h1 data-name>Jose Vascencelos</h1>    <p class="sub"><span class="gold">Cripto</span> para iniciantes, em português simples.</p>
+    <label style="display:block;font-size:13px;line-height:1.5;margin:16px 0;color:#ccc"><input type="checkbox" id="tracking-consent"> Autorizo o uso dos dados desta visita e da minha entrada no canal para medir resultados com a Meta. Opcional.</label>
+    <p id="join-status" role="status" style="font-size:13px" hidden></p>
     <a class="btn" data-cta href="https://t.me/+odBJEl8uvCs0MDA8" rel="noopener">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 3.6 2.6 11c-1.3.5-1.3 1.3-.2 1.6l4.9 1.5 1.9 5.8c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.4-2.3 4.9 3.6c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.2-.4-1.8-1.1-1.5ZM8.4 13.3l9.7-6.1c.5-.3.9-.1.5.2l-8.3 7.5-.3 3.4-1.6-5Z"/></svg>
       Entrar no canal
@@ -105,14 +107,50 @@ document.querySelectorAll("[data-initials]").forEach(function (el) {
   el.textContent = CHANNEL_NAME.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase();
 });
 
-if (PIXEL_ID) {
+var consent = document.getElementById('tracking-consent');
+var joinStatus = document.getElementById('join-status');
+var pixelStarted = false;
+consent.addEventListener('change', function () {
+  if (!consent.checked || !PIXEL_ID || pixelStarted) return;
+  pixelStarted = true;
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', PIXEL_ID);
   fbq('track', 'PageView');
-  document.querySelectorAll("[data-cta]").forEach(function (a) {
-    a.addEventListener("click", function () { fbq('track', 'Lead'); });
+});
+var visitId = null;
+var joining = false;
+document.querySelectorAll('[data-cta]').forEach(function (a) {
+  a.addEventListener('click', async function (event) {
+    if (!consent.checked) return;
+    event.preventDefault();
+    if (joining) return;
+    joining = true;
+    a.setAttribute('aria-busy', 'true');
+    joinStatus.hidden = false;
+    joinStatus.textContent = 'Preparando seu convite…';
+    try {
+      if (!visitId) visitId = Array.from(crypto.getRandomValues(new Uint8Array(16)), function (n) { return n.toString(16).padStart(2, '0'); }).join('');
+      var r = await fetch('/api/join', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        signal: AbortSignal.timeout(15000),
+        body: JSON.stringify({consent: true, visit: visitId, fbclid: new URLSearchParams(location.search).get('fbclid') || ''})
+      });
+      var result = await r.json();
+      if (!r.ok || !/^https:\/\/t\.me\/[+A-Za-z0-9_-]+$/.test(result.url || '')) throw new Error('invite');
+      if (window.fbq) fbq('track', 'Lead');
+      location.assign(result.url);
+    } catch (error) {
+      joinStatus.textContent = 'Não foi possível preparar o convite. Tente novamente ou entre sem medição.';
+      var fallback = document.createElement('a');
+      fallback.href = CHANNEL_URL;
+      fallback.textContent = ' Entrar sem medição';
+      joinStatus.appendChild(fallback);
+    } finally {
+      joining = false;
+      a.removeAttribute('aria-busy');
+    }
   });
-}
+});
 
 /* Fundo: moedas de ouro, platina e ouro rose girando devagar em orbitas de fio fino. */
 (function () {
